@@ -1,5 +1,4 @@
 import express from "express";
-import mongoose from "mongoose";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import cors from "cors";
@@ -10,6 +9,7 @@ import notFound from "./middleware/notFound.js";
 import userRouter from "./routes/userRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import taskRouter from "./routes/taskRoutes.js";
+import { dbConnect } from "./config/dbConfig.js";
 import "dotenv/config";
 
 // create server
@@ -27,14 +27,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 server.use(express.static(path.join(__dirname, "public")));
 
-// connect to mongodb using mongoose
-try {
-  await mongoose.connect(process.env.MONGO_CONN_STR);
-  console.log("Connected to mongodb");
-  // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
-} catch (error) {
-  console.log("Error connect to database: " + error);
-}
+// connect to db
+dbConnect();
 
 // logger middleware
 server.use(logger);
