@@ -11,38 +11,43 @@ import authRouter from "./routes/authRoutes.js";
 import taskRouter from "./routes/taskRoutes.js";
 import { dbConnect } from "./config/dbConfig.js";
 import "dotenv/config";
+import { swaggerConfig } from "./config/swaggerConfig.js";
 
-// create server
-const server = express();
+// create app
+const app = express();
 
 // configure head information
-server.use(cors());
-server.disable("x-powered-by"); //Reduce fingerprinting
-server.use(cookieParser());
-server.use(express.json());
-server.use(express.urlencoded({ extended: false }));
+app.use(cors());
+app.disable("x-powered-by"); //Reduce fingerprinting
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // use public folder
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-server.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
+
+const port = process.env.PORT || 3000;
 
 // connect to db
 dbConnect();
 
+// configuration for swagger docs
+swaggerConfig(app);
+
 // logger middleware
-server.use(logger);
+app.use(logger);
 
 // routes
-server.use("/api/users", userRouter);
-server.use("/api/auth", authRouter);
-server.use("/api/tasks", taskRouter);
+app.use("/api/users", userRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/tasks", taskRouter);
 
 // error handler
-server.use(notFound);
-server.use(errorHandler);
+app.use(notFound);
+app.use(errorHandler);
 
-const port = process.env.PORT || 3000;
-server.listen(port, () => {
+app.listen(port, () => {
   console.log(`Todo app listening on port ${port}`);
 });
